@@ -6,7 +6,6 @@
 , scala-native-version ? null, js-module-kind ? "common", }:
 
 let
-  pname' = pname;
   supports-jvm = builtins.elem "jvm" supported-platforms;
   supports-native = builtins.elem "native" supported-platforms;
   supports-graal = builtins.elem "graal" supported-platforms;
@@ -45,7 +44,7 @@ let
   # we must hash the coursier caches created during the build
   coursier-cache = stdenv.mkDerivation {
     inherit src;
-    name = "${pname}-coursier-cache";
+    name = "coursier-cache";
 
     buildInputs = build-packages;
 
@@ -147,9 +146,9 @@ let
   };
 
   node-app = js-mode:
-    stdenv.mkDerivation rec {
+    stdenv.mkDerivation {
       inherit version src;
-      pname = "${pname'}-node";
+      pname = "${pname}-node";
       buildInputs = build-packages ++ [ node coursier-cache ];
 
       JAVA_HOME = "${jdk}";
