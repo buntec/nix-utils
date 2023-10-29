@@ -19,15 +19,11 @@
     in {
 
       lib = {
-
-        mkBuildScalaApp = import ./build-scala-app.nix;
-
-        mkBuildCoursierApp = import ./build-coursier-app.nix;
-
+        mkBuildScalaApp = import ./lib/build-scala-app.nix;
+        mkBuildCoursierApp = import ./lib/build-coursier-app.nix;
       };
 
       checks = eachSystem (system:
-
         let
           pkgs = import nixpkgs {
             inherit system;
@@ -38,8 +34,8 @@
           scala-test-app = buildScalaApp {
             inherit version;
             src = ./test/src;
-            pname = "test-app";
-            sha256 = "sha256-syetQWuxhKwpxFfjlTwFYnj359Ad0sXvVXaz7ty22ak=";
+            pname = "app";
+            sha256 = "sha256-EQIgNMmrFQNHGsvbrAFmNFzpc50JMXddPdGDCg9C01o=";
           };
 
           buildCoursierApp = pkgs.callPackage self.lib.mkBuildCoursierApp { };
