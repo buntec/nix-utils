@@ -35,7 +35,7 @@
             inherit version;
             src = ./test/src;
             pname = "app";
-            sha256 = "sha256-EQIgNMmrFQNHGsvbrAFmNFzpc50JMXddPdGDCg9C01o=";
+            sha256 = "sha256-/gncHy+OfgnOq33tEuTw7zoBiVz6ktDx9l3iHhQpnkw=";
           };
 
           buildCoursierApp = pkgs.callPackage self.lib.mkBuildCoursierApp { };
@@ -44,14 +44,14 @@
             artifactId = "metals_2.13";
             version = "1.0.1";
             pname = "metals";
-            depsHash = "sha256-WAQbkBcYxGjWKdC2NZHHYPha9i+b7f+xWO1LVsLkJeI=";
+            depsHash = "sha256-wgztmPISB1xNaFBDbidnyGKE66YfXscoxxiEgIpohVc=";
           };
 
-        in (mapAttrs'
-          (name: value: nameValuePair ("scala-test-app_" + name) (value))
-          scala-test-app // {
-            inherit coursier-test-app;
-          }));
+        in mapAttrs'
+        (name: value: nameValuePair ("scala-test-app_" + name) value)
+        scala-test-app // {
+          inherit coursier-test-app;
+        });
 
     };
 

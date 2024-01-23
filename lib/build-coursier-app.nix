@@ -1,14 +1,15 @@
-{ jdk, coursier, lib, stdenv, makeWrapper, ... }:
+{ jdk, coursier, zip, unzip, coreutils, dos2unix, lib, stdenv, makeWrapper
+, writeShellScript, ... }:
 
 { groupId, artifactId, version, pname ? artifactId, depsHash ? ""
 , javaOpts ? [ ] }:
 
 let
   coursier-cache = stdenv.mkDerivation {
-    name = "coursier-cache";
+    name = "${pname}-coursier-cache";
 
     dontUnpack = true;
-    nativeBuildInputs = [ jdk coursier ];
+    nativeBuildInputs = [ jdk coursier zip unzip coreutils dos2unix ];
 
     JAVA_HOME = "${jdk}";
     COURSIER_CACHE = "./coursier-cache/v1";
@@ -20,6 +21,9 @@ let
       cs fetch ${groupId}:${artifactId}:${version} \
         -r bintray:scalacenter/releases \
         -r sonatype:snapshots
+
+      ${builtins.readFile ./fix-jar.sh}
+      canonicalizeJarsIn $COURSIER_CACHE
     '';
 
     installPhase = ''

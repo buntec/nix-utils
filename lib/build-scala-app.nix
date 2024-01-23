@@ -1,5 +1,6 @@
-{ writeScript, runtimeShell, stdenv, jdk, graalvm-ce, scala-cli, nodejs, clang
-, coreutils, llvmPackages, openssl, s2n-tls, which, zlib, ... }:
+{ writeScript, zip, unzip, runtimeShell, stdenv, dos2unix, jdk, graalvm-ce
+, scala-cli, nodejs, clang, coreutils, llvmPackages, openssl, s2n-tls, which
+, zlib, ... }:
 
 { src, pname, version, sha256
 , supported-platforms ? [ "jvm" "graal" "native" "node" ]
@@ -44,9 +45,10 @@ let
   # we must hash the coursier caches created during the build
   coursier-cache = stdenv.mkDerivation {
     inherit src;
-    name = "coursier-cache";
+    name = "${pname}-coursier-cache";
 
     buildInputs = build-packages;
+    nativeBuildInputs = [ zip unzip coreutils dos2unix ];
 
     SCALA_CLI_HOME = "./scala-cli-home";
     COURSIER_CACHE = "./coursier-cache/v1";
@@ -70,6 +72,9 @@ let
         "scala-cli compile . --js ${js-module-flag} --java-home=${jdk} --server=false"
       else
         ""}
+
+      ${builtins.readFile ./fix-jar.sh}
+      canonicalizeJarsIn $COURSIER_CACHE
     '';
 
     installPhase = ''
