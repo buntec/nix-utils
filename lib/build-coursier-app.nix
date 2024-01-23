@@ -22,7 +22,7 @@ let
         -r bintray:scalacenter/releases \
         -r sonatype:snapshots
 
-      ${builtins.readFile ./fix-jar.sh}
+      ${builtins.readFile ./canonicalize-jars.sh}
       canonicalizeJarsIn $COURSIER_CACHE
     '';
 

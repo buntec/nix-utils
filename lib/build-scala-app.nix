@@ -64,16 +64,16 @@ let
       mkdir -p coursier-cache/jvm
       ${make-buildinfo}
       scala-cli compile . --java-home=${jdk} --server=false
-      ${if (supports-native) then
+      ${if supports-native then
         "scala-cli compile . --native ${native-version-flag} --java-home=${jdk} --server=false"
       else
         ""}
-      ${if (supports-node) then
+      ${if supports-node then
         "scala-cli compile . --js ${js-module-flag} --java-home=${jdk} --server=false"
       else
         ""}
 
-      ${builtins.readFile ./fix-jar.sh}
+      ${builtins.readFile ./canonicalize-jars.sh}
       canonicalizeJarsIn $COURSIER_CACHE
     '';
 
