@@ -35,7 +35,7 @@
             inherit version;
             src = ./test/src;
             pname = "app";
-            sha256 = "sha256-/gncHy+OfgnOq33tEuTw7zoBiVz6ktDx9l3iHhQpnkw=";
+            depsHash = "sha256-Nk8h6B63roLuZELQjEh+tkdCLnqxqy8DU6zfHh7gT1k=";
           };
 
           buildCoursierApp = pkgs.callPackage self.lib.mkBuildCoursierApp { };
@@ -44,7 +44,7 @@
             artifactId = "metals_2.13";
             version = "1.0.1";
             pname = "metals";
-            depsHash = "sha256-wgztmPISB1xNaFBDbidnyGKE66YfXscoxxiEgIpohVc=";
+            depsHash = "sha256-VMt84MnzhA6PxmgtF2PvxIn5dhaM5jb8QHwHG0hIprg=";
           };
 
         in mapAttrs'

@@ -1,5 +1,5 @@
-{ jdk, coursier, zip, unzip, coreutils, dos2unix, lib, stdenv, makeWrapper
-, writeShellScript, ... }:
+{ jdk, coursier, strip-nondeterminism, coreutils, dos2unix, lib, stdenv
+, makeWrapper, writeShellScript, ... }:
 
 { groupId, artifactId, version, pname ? artifactId, depsHash ? ""
 , javaOpts ? [ ] }:
@@ -9,7 +9,7 @@ let
     name = "${pname}-coursier-cache";
 
     dontUnpack = true;
-    nativeBuildInputs = [ jdk coursier zip unzip coreutils dos2unix ];
+    nativeBuildInputs = [ jdk coursier strip-nondeterminism ];
 
     JAVA_HOME = "${jdk}";
     COURSIER_CACHE = "./coursier-cache/v1";
@@ -21,9 +21,7 @@ let
       cs fetch ${groupId}:${artifactId}:${version} \
         -r bintray:scalacenter/releases \
         -r sonatype:snapshots
-
-      ${builtins.readFile ./canonicalize-jars.sh}
-      canonicalizeJarsIn $COURSIER_CACHE
+      find $COURSIER_CACHE -name '*.jar' -type f -print0 | xargs -r0 strip-nondeterminism
     '';
 
     installPhase = ''

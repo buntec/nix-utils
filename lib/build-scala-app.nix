@@ -1,8 +1,8 @@
-{ writeScript, zip, unzip, runtimeShell, stdenv, dos2unix, jdk, graalvm-ce
+{ writeScript, strip-nondeterminism, runtimeShell, stdenv, jdk, graalvm-ce
 , scala-cli, nodejs, clang, coreutils, llvmPackages, openssl, s2n-tls, which
 , zlib, ... }:
 
-{ src, pname, version, sha256
+{ src, pname, version, depsHash ? ""
 , supported-platforms ? [ "jvm" "graal" "native" "node" ]
 , scala-native-version ? null, js-module-kind ? "common", }:
 
@@ -41,14 +41,13 @@ let
   build-packages = [ jdk scala-cli ]
     ++ (if (supports-native || supports-graal) then native-packages else [ ]);
 
-  # fixed-output derivation: to nix'ify scala-cli,
-  # we must hash the coursier caches created during the build
+  # fixed-output derivation: we must hash the coursier caches created during the build
   coursier-cache = stdenv.mkDerivation {
     inherit src;
     name = "${pname}-coursier-cache";
 
     buildInputs = build-packages;
-    nativeBuildInputs = [ zip unzip coreutils dos2unix ];
+    nativeBuildInputs = [ coreutils strip-nondeterminism ];
 
     SCALA_CLI_HOME = "./scala-cli-home";
     COURSIER_CACHE = "./coursier-cache/v1";
@@ -72,9 +71,7 @@ let
         "scala-cli compile . --js ${js-module-flag} --java-home=${jdk} --server=false"
       else
         ""}
-
-      ${builtins.readFile ./canonicalize-jars.sh}
-      canonicalizeJarsIn $COURSIER_CACHE
+      find $COURSIER_CACHE -name '*.jar' -type f -print0 | xargs -r0 strip-nondeterminism
     '';
 
     installPhase = ''
@@ -84,7 +81,7 @@ let
 
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = sha256;
+    outputHash = depsHash;
   };
 
   scala-native-app = native-mode:
@@ -227,17 +224,17 @@ let
     '';
   };
 
-in (if (supports-native) then {
+in (if supports-native then {
   native-release-full = scala-native-app-release-full;
   native-release-fast = scala-native-app-release-fast;
   native-release-size = scala-native-app-release-size;
   native-debug = scala-native-app-debug;
 } else
-  { }) // (if (supports-node) then {
+  { }) // (if supports-node then {
     node-release = node-app-release;
     node-dev = node-app-dev;
   } else
     { })
-// (if (supports-graal) then { graal = graal-native-image-app; } else { })
-// (if (supports-jvm) then { jvm = jvm-app; } else { })
+// (if supports-graal then { graal = graal-native-image-app; } else { })
+// (if supports-jvm then { jvm = jvm-app; } else { })
 
