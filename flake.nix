@@ -23,6 +23,11 @@
         mkBuildCoursierApp = import ./lib/build-coursier-app.nix;
       };
 
+      overlays.default = final: prev: {
+        buildScalaApp = final.callPackage self.lib.mkBuildScalaApp { };
+        buildCoursierApp = final.callPackage self.lib.mkBuildCoursierApp { };
+      };
+
       checks = eachSystem (system:
         let
           pkgs = import nixpkgs {
